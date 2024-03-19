@@ -1,0 +1,95 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.Main..Create(BaseForm)
+Gui.Main..Caption("Update Shipping Integrator Hooks")
+Gui.Main..Size(316,94)
+Gui.Main..MinX(0)
+Gui.Main..MinY(0)
+Gui.Main..Position(0,0)
+Gui.Main..AlwaysOnTop(False)
+Gui.Main..FontName("Tahoma")
+Gui.Main..FontSize(8.25)
+Gui.Main..ControlBox(True)
+Gui.Main..MaxButton(True)
+Gui.Main..MinButton(True)
+Gui.Main..MousePointer(0)
+Gui.Main..Moveable(True)
+Gui.Main..Sizeable(True)
+Gui.Main..ShowInTaskBar(True)
+Gui.Main..TitleBar(True)
+Gui.Main..Event(UnLoad,Main_UnLoad)
+Gui.Main.cmdAddHooks.Create(Button)
+Gui.Main.cmdAddHooks.Enabled(True)
+Gui.Main.cmdAddHooks.Visible(True)
+Gui.Main.cmdAddHooks.Zorder(0)
+Gui.Main.cmdAddHooks.Size(125,23)
+Gui.Main.cmdAddHooks.Position(18,23)
+Gui.Main.cmdAddHooks.Caption("Add Hooks")
+Gui.Main.cmdAddHooks.FontName("Tahoma")
+Gui.Main.cmdAddHooks.FontSize(8.25)
+Gui.Main.cmdAddHooks.SvgPicture("icon_add_color")
+Gui.Main.cmdAddHooks.Event(Click,cmdAddHooks_Click)
+Gui.Main.cmdAddHooks.DisableOnClick(20)
+Gui.Main.cmdDeleteHooks.Create(Button)
+Gui.Main.cmdDeleteHooks.Enabled(True)
+Gui.Main.cmdDeleteHooks.Visible(True)
+Gui.Main.cmdDeleteHooks.Zorder(0)
+Gui.Main.cmdDeleteHooks.Size(125,23)
+Gui.Main.cmdDeleteHooks.Position(166,23)
+Gui.Main.cmdDeleteHooks.Caption("Remove Hooks")
+Gui.Main.cmdDeleteHooks.FontName("Tahoma")
+Gui.Main.cmdDeleteHooks.FontSize(8.25)
+Gui.Main.cmdDeleteHooks.SvgPicture("icon_delete_color")
+Gui.Main.cmdDeleteHooks.Event(Click,cmdDeleteHooks_Click)
+Gui.Main.cmdDeleteHooks.DisableOnClick(20)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+V.Global.sHooks.Declare(String,"11866*!*28530*!*38424*!*11865*!*10905*!*28547*!*38407*!*28548*!*44200*!*38406*!*50210*!*26263*!*28553*!*38408")
+'V.Global.sScriptFiles.Declare(String,"ATG_SI_Address_Validation.gas*!*ATG_SI_Address_Validation.gas*!*ATG_SI_Address_Validation.gas*!*ATG_SI_Get_Rates.gas*!*ATG_SI_Get_Rates.gas*!*ATG_SI_Get_Rates.gas*!*ATG_SI_Get_Rates.gas*!*ATG_SI_Ship_Session.gas*!*ATG_SI_Ship_Session.gas*!*ATG_SI_Ship_Session.gas*!*ATG_SI_Ship_Session.gas*!*ATG_SI_Void_Shipment.gas*!*ATG_SI_Void_Shipment.gas*!*ATG_SI_Void_Shipment.gas")
+V.Global.sScriptFiles.Declare(String,"ATG_SI_Address_Validation.g2u*!*ATG_SI_Address_Validation.g2u*!*ATG_SI_Address_Validation.g2u*!*ATG_SI_Get_Rates.g2u*!*ATG_SI_Get_Rates.g2u*!*ATG_SI_Get_Rates.g2u*!*ATG_SI_Get_Rates.g2u*!*ATG_SI_Ship_Session.g2u*!*ATG_SI_Ship_Session.g2u*!*ATG_SI_Ship_Session.g2u*!*ATG_SI_Ship_Session.g2u*!*ATG_SI_Void_Shipment.g2u*!*ATG_SI_Void_Shipment.g2u*!*ATG_SI_Void_Shipment.g2u")
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+Function.Intrinsic.UI.UsePixels ' Allows you to use Pixels instead of Twips throughout
+
+F.ODBC.Connection!con.OpenCompanyConnection
+
+F.Intrinsic.String.Split(V.Global.sHooks,"*!*",V.Global.sHooks)
+F.Intrinsic.String.Split(V.Global.sScriptFiles,"*!*",V.Global.sScriptFiles)
+
+Gui.Main..Show
+
+Program.Sub.Main.End
+
+Program.Sub.Main_UnLoad.Start
+F.ODBC.Connection!con.Close
+F.Intrinsic.Control.End
+Program.Sub.Main_UnLoad.End
+
+Program.Sub.cmdAddHooks_Click.Start
+V.Local..BulkDeclareString(sSQL,sRet)
+V.Local..BulkDeclareLong(i)
+
+F.Intrinsic.Control.For(V.Local.i,0,V.Global.sHooks.UBound,1)
+	F.Global.Hook.AddHookSequenceAssociation(V.Global.sHooks(V.Local.i),True,V.Caller.GasDir,V.Global.sScriptFiles(V.Local.i),False,"",2,"","N",V.Local.sRet)
+F.Intrinsic.Control.Next(V.Local.i)
+
+F.Intrinsic.UI.Msgbox("Shipping Integrator hooks added.","Shipping Integrator Enabled")
+Program.Sub.cmdAddHooks_Click.End
+
+Program.Sub.cmdDeleteHooks_Click.Start
+V.Local..BulkDeclareString(sSQL,sRet)
+V.Local..BulkDeclareLong(i)
+
+F.Intrinsic.Control.For(V.Local.i,0,V.Global.sScriptFiles.UBound,1)
+	F.Intrinsic.String.Build("delete from HOOK_ASSOCIATION where UCASE(SCRIPT_NAME) like '%{0}'",V.Global.sScriptFiles(V.Local.i).Ucase,V.Local.sSQL)
+	F.ODBC.Connection!con.Execute(V.Local.sSQL)
+F.Intrinsic.Control.Next(V.Local.i)
+
+F.Intrinsic.UI.Msgbox("Shipping Integrator hooks removed.","Shipping Integrator Disabled")
+Program.Sub.cmdDeleteHooks_Click.End
+
+Program.Sub.Comments.Start
+${$5$}$20.1.8731.27725$}$1
+${$6$}$jwithrow$}$20231208161437132$}$D95tSYIikIvF+oq+s87EtBQePACEH+EyYQW08ojWy0RQEG2bCLJXG09JQwycFOfSdJZC8CaBO8K5vJ61tHQN2w==
+Program.Sub.Comments.End
